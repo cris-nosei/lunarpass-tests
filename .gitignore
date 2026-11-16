@@ -9,3 +9,13 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Saídas geradas pelos testes (screenshots)
+output/
+
+# Anotações pessoais (não versionar)
+tests/tests_backup/
+docs/backup/
+
+# Variáveis de ambiente (senhas, conexões)
+.env
