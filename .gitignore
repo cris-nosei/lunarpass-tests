@@ -14,7 +14,7 @@ node_modules/
 output/
 
 # Anotações pessoais (não versionar)
-tests/tests_backup/
+playwright/e2e/tests_backup/
 docs/backup/
 
 # Variáveis de ambiente (senhas, conexões)

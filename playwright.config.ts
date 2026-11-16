@@ -16,7 +16,7 @@ export default defineConfig({
   projects: [
     {
       name: 'mission-control',
-      testDir: './tests/mission-control',
+      testDir: './playwright/e2e/mission-control',
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:3000',
@@ -24,7 +24,7 @@ export default defineConfig({
     },
     {
       name: 'storefront',
-      testDir: './tests/storefront',
+      testDir: './playwright/e2e/storefront',
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:3000', // TODO: confirmar baseURL do storefront
