@@ -1,31 +1,52 @@
-# Boas práticas para o spec
+# Spec
 
-## Estrutura
+## Arquivo
 
-- Arquivo na pasta de specs do projeto, importando `test` e `expect` como os specs-modelo de `assets/projeto/`.
-- **Contexto** do Gherkin em `test.beforeEach`.
-- Dentro do teste, as três partes marcadas com comentários: `// Arrange`, `// Act` e `// Assert`, ou o padrão de comentários do projeto.
-- Um teste por cenário. Em Esquema do Cenário, uma lista de dados com um `test` por linha.
+- Pasta `playwright/e2e/<modulo>/<funcionalidade>.spec.ts`.
+- Primeira linha: `import { test, expect } from '../../support'`.
+- Tipo e banco, quando o teste semeia missão, no estilo de `register.spec.ts`:
 
-## Asserções
+```ts
+import { Mission } from '../../support/types'
+import { cleanMission, cleanAndInsertMission } from '../../support/db'
+```
 
-- Use asserções que esperam sozinhas: `toBeVisible`, `toHaveText`, `toContainText`, `toHaveURL`, `toBeDisabled`, `toHaveCount` (só para elementos do próprio teste).
-- Uma asserção para cada **Então** e cada **E** do cenário. Nenhuma a mais, nenhuma a menos.
-- Valor exato: o texto ou número que a tela mostra para o resultado esperado.
-- Para verificar que algo **não** acontece (ex.: "não permite o avanço"), verifique o estado observável que prova isso: a mensagem exibida, a etapa que continua na tela, o botão desabilitado.
+Importe só as funções que o arquivo usa.
 
-## Esperas
+- 2 espaços, aspas simples, sem ponto e vírgula.
+- Sem `test.skip`, `test.only` ou asserção comentada.
 
-- Nada de `waitForTimeout`.
-- O Playwright espera os elementos sozinho em ações e asserções. Se uma operação é lenta, espere pelo resultado visível.
-- Evite timeout por teste. Se for inevitável, justifique no resumo.
+## Ordem dentro do teste
+
+1. Preparar o estado (**Dado**), pela massa ou pelo `beforeEach`.
+2. Agir (**Quando**), por método do Page Object.
+3. Verificar (**Então** e cada **E**), uma asserção cada, nenhuma a mais.
+
+Comentários `// Arrange`, `// Act` e `// Assert` aparecem só no teste de código duplicado. Não os copie para testes novos e não os espalhe pelos arquivos antigos.
+
+`beforeEach` recebe `{ app }` quando navega ou autentica, como nos specs de `mission-control`. Teste que precisa de `page` (título da aba, por exemplo) declara `{ page, app }`, como `home.spec.ts`.
+
+## Asserções já usadas
+
+- `toBeVisible()` e, só na espera do logout depois do login, `toBeVisible({ timeout: 10_000 })`
+- `toHaveText('texto exato')` para alerta
+- `toContainText('texto')` para `app.toast.message`
+- `toHaveTitle('...')` em `page`
+
+Não crie timeout novo. Não use `waitForTimeout`. Não use `toHaveCount` para a lista pública de missões. Dentro da missão semeada pelo teste, conte só o que o cenário pede e que pertence a esse ID.
+
+Texto esperado que o cenário não definiu fica marcado no resumo.
 
 ## Isolamento
 
-- Nenhum teste depende de outro nem da ordem de execução.
-- Nenhum teste depende de dados que ele não criou, exceto usuários de demonstração e cadastros de referência, sem alterá-los.
+- Nenhum teste depende da ordem nem de outro teste.
+- Nenhum teste depende de missão que ele não limpou ou não inseriu.
+- Login do Mission Control usa as credenciais já presentes nos specs. Não crie outro usuário.
 
 ## Nomes
 
-- Variáveis, funções e Page Objects em inglês.
-- Títulos, dados de teste e textos esperados como na tela e na especificação.
+Variáveis, funções e classes em inglês. Título do teste: dúvida D2. Textos de tela como a aplicação mostra, em português.
+
+## Esquema do Cenário
+
+Dúvida D8. Não gere a lista de testes enquanto essa resposta não existir.

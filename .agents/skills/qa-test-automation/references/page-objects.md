@@ -1,37 +1,35 @@
 # Page Objects
 
-Um Page Object representa uma tela e expõe o que o usuário faz nela. O teste deve ler como o cenário.
+Um Page Object representa uma tela ou um componente e expõe o que o usuário faz. O spec não instancia classe e não chama `page.getByRole` direto: isso passa pela fixture `app`.
 
-Pasta, nome dos arquivos, estilo e forma de registro vêm dos modelos em `assets/projeto/` (Page Objects e fixture). As regras abaixo valem para os Page Objects que você cria.
+## Onde criar
 
-## Regras para Page Objects novos
+| Situação | Onde | Registro |
+|---|---|---|
+| Tela do Mission Control | `playwright/support/pages/mission-control/<nome>.page.ts` | `app.mission` em `playwright/support/index.ts` |
+| Tela do Storefront | `playwright/support/pages/storefront/<nome>.page.ts` | `app.store` |
+| Componente de um só módulo | pasta desse módulo, arquivo sem `.page` (como `navbar.ts`) | grupo desse módulo |
+| Componente usado por mais de um módulo | `playwright/support/pages/shared/` | propriedade na raiz de `createApp`, como `toast` |
+| Tela que já tem Page Object | complete o arquivo existente | não registre de novo |
 
-1. **Um arquivo por tela**, com a classe `<Tela>Page` e o construtor recebendo `page: Page`.
-2. **Locators como propriedades `readonly`**, criados no construtor, seguindo a ordem de `descoberta-de-tela.md`.
-3. **Elementos que dependem de dado viram método.** Exemplo: o item de um pedido específico vira `orderItem(orderId)`, devolvendo um `Locator`.
-4. **Métodos são ações do usuário**, com o nome da ação: `go()`, `applyCoupon(code)`, `continue()`. Recebem dados por parâmetro.
-5. **Navegação por caminho relativo**, apoiada no `baseURL` da configuração. Nunca com o endereço completo.
-6. **Sem `expect` dentro do Page Object.** As asserções ficam no teste, sobre os locators expostos.
-7. **Sem dados de teste nem credenciais** no Page Object.
-8. **Sem espera fixa.** Se uma ação precisa aguardar algo, aguarde um estado visível do próprio elemento.
-9. Siga a indentação e o estilo dos arquivos vizinhos.
+Classe exportada, construtor `(page: Page)`, locators de asserção como `readonly` atribuídos no construtor. Métodos são ações: `go()`, `login(email, password)`, `submit(mission)`. Caminho de `goto` relativo ao `baseURL`.
 
-## Page Objects que já existem
+Imports de tipo e helper, a partir de `playwright/support/pages/<modulo>/`, usam `../../types` e `../../helpers`, como `register.page.ts`.
 
-Projetos reais têm Page Objects escritos com outros padrões. **Não os refatore.** As regras acima valem para o que você cria.
+Estilo do arquivo vizinho: 2 espaços, aspas simples, sem ponto e vírgula. Sem dado de teste e sem credencial dentro do Page Object.
 
-Ao completar um Page Object existente:
-- Acrescente locators e métodos sem mudar o comportamento dos que existem.
-- Mantenha o estilo do arquivo.
-- Se precisar mudar algo existente, pergunte antes.
+## O que não fazer num arquivo novo
 
-## Reutilizar ou criar?
+- Não colocar `expect`. Dúvida D1.
+- Não colocar URL absoluta.
+- Não colocar `waitForTimeout`.
+- Não mudar o comportamento de método que já existe. Acrescente locator ou método. Se precisar alterar um método existente, pergunte.
+- Não mover a navbar para `shared/` nem criar componente compartilhado "por prevenção".
 
-| Situação | Decisão |
-|---|---|
-| A tela já tem Page Object | Reutilize e complete |
-| O elemento é usado por mais de uma área do sistema | Componente compartilhado |
-| O elemento aparece em várias telas de uma área (ex.: barra de navegação) | Componente da área |
-| Tela nova | Page Object novo, registrado na fixture |
+## Locator que depende de um dado
 
-Modelo: os Page Objects de `assets/projeto/`, respeitando as regras acima.
+Se o elemento só existe para uma missão, um assento ou um código, exponha um método que recebe esse dado e devolve `Locator`. Só faça isso com um locator da ordem permitida em `references/descoberta-de-tela.md`. Se a única forma estável for `data-mission-code`, pare na dúvida D4.
+
+## Módulo novo
+
+Siga a seção 5 de `docs/arquitetura.md`: pasta de pages, grupo em `createApp`, pasta `playwright/e2e/<modulo>/`, project em `playwright.config.ts`. O `baseURL` dos projects atuais é `http://localhost:3000`. Não invente outra URL (dúvida D9).

@@ -1,36 +1,39 @@
 # Do Gherkin ao teste
 
-O Gherkin declarativo descreve o comportamento de negócio, sem telas, cliques ou campos. A automação traduz cada parte para o código sem mudar o que foi especificado.
+O Gherkin declarativo descreve comportamento, sem botão nem campo. A automação traduz o cenário para a suíte do Lunar Pass sem acrescentar regra.
 
-A especificação pode estar num arquivo do projeto ou ser colada pelo usuário na conversa. As palavras-chave podem aparecer em texto puro, em **negrito** (Markdown) ou num arquivo `.feature`.
+A especificação pode estar em `docs/storefront.md`, em outro arquivo do repositório ou colada na conversa. As palavras-chave podem vir em texto, em negrito ou num `.feature`.
 
 ## Como cada parte vira código
 
-| Gherkin | No teste | Como |
+| Gherkin | No teste | Como, neste repositório |
 |---|---|---|
-| **Contexto** | `test.beforeEach` do arquivo | Estado comum a todos os cenários da funcionalidade |
-| **Dado** | Arrange | De preferência pelo mecanismo de massa do projeto (banco, API ou fixture), mais rápido e estável que preparar pela tela. Pela tela só quando o próprio cenário pede a navegação |
-| **Quando** | Act | Ações do usuário, sempre por métodos do Page Object |
-| **Então** / **E** | Assert | Uma asserção para cada resultado esperado, sobre localizadores do Page Object |
-| **Esquema do Cenário** + **Exemplos** | Um teste por linha | Lista de dados percorrida com um `test` por item |
-| Anotações de rastreabilidade (regra de origem, IDs) | Nada | Servem para rastrear, não viram código |
+| **Contexto** | `test.beforeEach` | Igual a `login.spec.ts` e `register.spec.ts`, quando o estado é comum aos testes do arquivo. `home.spec.ts` não usa `beforeEach`: cada teste chama `go()` |
+| **Dado** de missão já existente ou ausente | Arrange, via `playwright/support/db.ts` | `cleanAndInsertMission` quando a missão precisa existir; `cleanMission` quando a tela é que vai criá-la. Pela UI só se o próprio cenário pede essa navegação |
+| **Dado** que é o login do Mission Control | O `beforeEach` de `register.spec.ts` | `go()`, `login('buzz@lunarpass.dev', 'pwd123')`, logout visível |
+| **Quando** | Act | Métodos do Page Object já existente, ou os que você acabou de criar |
+| **Então** / **E** | Assert | Uma asserção para cada resultado, no locator do Page Object |
+| **Esquema do Cenário** | Não automatize ainda | Dúvida D8 |
+| Anotação de rastreio (`Regra de origem`, IDs de regra) | Nada no código | Não vira asserção |
 
-## Título do teste
+## Módulo
 
-Regra da skill, que vale mesmo quando os testes antigos do projeto usam outro padrão (não renomeie os antigos):
-
-- Cenário: o nome exato, palavra por palavra. `Cenário: Aplicar um cupom expirado` vira `test('Aplicar um cupom expirado', ...)`.
-- Esquema do Cenário: o nome seguido da identificação da linha, por exemplo `Validar o tamanho do nome | caracteres: 2`.
-- Um arquivo de spec por funcionalidade.
+- Telas de login, painel e cadastro de missão: project `mission-control`, `app.mission`.
+- Vitrine, busca, reserva do viajante: project `storefront`, `app.store`.
+- Toast de feedback: `app.toast`, como em `register.spec.ts`.
 
 ## Quando o cenário não é suficiente
 
 | Situação | O que fazer |
 |---|---|
-| O **Então** não diz o que verificar (ex.: "o sistema reage adequadamente") | Pergunte antes de escrever |
-| O **Então** descreve uma mensagem sem o texto exato | Use o texto que a tela mostra e registre no resumo: "texto observado, não definido na especificação" |
-| O **Quando** é uma ação que a tela impede (ex.: botão desabilitado) | Não force o clique. Verifique o estado que impede a ação (`toBeDisabled`) e explique em comentário no Act |
-| O **Então** não tem correspondência clara na tela (ex.: o cenário fala em instrução e a tela só mostra um status) | Automatize o que é verificável, use o elemento mais próximo e registre a divergência no resumo como pergunta: especificação, requisito ou produto? |
-| O **Dado** exige um estado que o projeto não consegue criar | Pergunte. Não simule o estado de outro jeito sem combinar |
-| O cenário depende de uma decisão de negócio em aberto | Não automatize. Registre como pendente |
-| A tela se comporta diferente do **Então** | O teste fica falhando. Reporte como possível defeito do produto |
+| O **Então** não diz o que verificar | Pergunte antes de escrever |
+| O **Então** descreve uma mensagem sem o texto exato | Use o texto visto na descoberta e registre no resumo: "texto observado, não definido na especificação" |
+| O **Quando** é uma ação que a tela impede | Não force o clique. Verifique o estado observável que o cenário descreve. Se esse estado depender de um tipo de locator da dúvida D4, pare |
+| O **Dado** pede reserva, ticket ou assento vendido | Dúvida D7. Não simule pela UI sem combinar |
+| O cenário depende de P1–P4 ou das regras R9 e R10 em `docs/storefront.md` | Não automatize. Registre como pendente |
+| A tela se comporta diferente do **Então** | O teste fica falhando. Reporte como possível defeito |
+| Falta título, limpeza final ou linha de Exemplos | Dúvidas D2, D3 e D8 |
+
+## Título
+
+Não invente o título. Dúvida D2. Não renomeie os testes atuais.

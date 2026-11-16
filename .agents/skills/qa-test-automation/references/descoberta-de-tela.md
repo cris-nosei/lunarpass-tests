@@ -1,38 +1,42 @@
 # Descoberta de tela com o Playwright MCP
 
-O cenário diz **o que** acontece; a tela diz **como**. Antes de escrever o Page Object, percorra o caminho do cenário na aplicação e anote os elementos reais.
+O cenário diz o que acontece. O Page Object existente ou a tela dizem como localizar. Não escreva locator de memória.
 
 ## Procedimento
 
-1. Confirme que a aplicação responde no `baseURL` da configuração do projeto. Se não responder, não invente a tela: siga apenas com o que já existe nos Page Objects e entregue como "não executado".
-2. Abra a página inicial do caminho do cenário pelo Playwright MCP.
-3. Leia o **snapshot de acessibilidade** de cada tela. Ele mostra papel, nome acessível e estado de cada elemento, que é exatamente o que os locators usam.
-4. Execute as ações do **Quando** para ver as telas seguintes e o resultado do **Então** (mensagens, alertas, mudanças de estado).
-5. Anote, por tela: o caminho da URL, cada elemento usado e o melhor locator para ele.
-6. Feche a aba ao terminar.
+1. Confirme que a aplicação responde no `baseURL` do project (`http://localhost:3000` nos dois projects; dúvida D9). Se não responder, não invente a tela. Siga só com Page Objects que já tenham o locator e marque o resumo como "não executado".
+2. Se o Playwright MCP não estiver disponível nesta conversa, diga isso e pare a descoberta. Não use outro navegador, `curl` nem script para "ver" a tela.
+3. Abra o caminho do cenário pelo Playwright MCP.
+4. Leia o snapshot de acessibilidade de cada tela: papel, nome acessível e estado.
+5. Percorra as ações do **Quando** para ver o resultado do **Então**.
+6. Anote, por tela, o caminho relativo e o locator de cada elemento que o código ainda não tem.
+7. Feche a aba ao terminar.
 
-## Cuidados
+A descoberta não substitui a execução do spec e não gera relatório Passou/Falhou/Bloqueado. Isso é da skill `qa-test-executor`.
 
-- A descoberta pode precisar de dados. Use a massa que o teste vai criar (ver `massa-de-teste.md`) e limpe ao final, ou use dados de demonstração sem alterá-los.
-- Não conclua compras, cadastros ou envios com dados reais só para explorar.
-- Credenciais de acesso vêm do que o projeto já usa nos testes existentes. Não invente usuários.
+## Credenciais e dados
 
-## Escolha do locator
+- Mission Control: as credenciais já usadas em `login.spec.ts` e `register.spec.ts`. Não crie usuário.
+- Missão: massa de `references/massa-de-teste.md`. Não altere missão que o teste não tenha criado.
+- Não conclua reserva nem pagamento com dado real só para explorar. Se o cenário for esse fluxo, use o que a especificação chamar de cartão de teste e pare se o texto do cartão não estiver no cenário nem na tela.
 
-Use a ordem do documento de arquitetura do projeto, se ele definir uma. Sem definição, a ordem recomendada pelo Playwright:
+## Locator
 
-| Prioridade | Locator | Quando |
+Use nesta ordem, que é a de `docs/arquitetura.md` §3.2 e a dos Page Objects atuais:
+
+| Ordem | Locator | Quando os arquivos atuais usam |
 |---|---|---|
-| 1 | `getByRole(papel, { name })` | Botões, links, títulos, campos com nome acessível, alertas |
-| 2 | `getByLabel(rótulo)` | Campos associados a um rótulo |
-| 3 | `getByPlaceholder(texto)` | Campos identificados pelo texto de ajuda |
-| 4 | `getByText(texto)` | Textos sem papel, como mensagens de status |
-| 5 | `getByTestId(id)` | Quando nada acima identifica o elemento de forma estável |
+| 1 | `getByRole(papel, { name })` | Botão, link, heading, textbox, spinbutton, alert |
+| 2 | `getByLabel(rótulo)` | Select `Base lunar` |
+| 3 | `getByPlaceholder(texto)` | E-mail e senha do login |
+| 4 | `getByTestId(id)` | `mission-form-return-date` |
 
-Evite XPath, subidas no DOM (`/..`) e classes CSS. Elemento sem papel nem identificador estável vira sugestão de testabilidade no resumo.
+Não use XPath, `/..` nem classe CSS.
 
-## Estados que a descoberta precisa revelar
+`getByText` e `[data-mission-code]` são a dúvida D4. Atributos que `docs/aderencia.md` apenas solicita (datas da missão, duração, assentos disponíveis, estado vazio, tooltip, resumo, confirmação) só entram no Page Object se o snapshot mostrar esse atributo no DOM. Se o snapshot não mostrar, registre a lacuna de testabilidade no resumo e não escreva o locator do exemplo do documento.
 
-- **Botões desabilitados:** o snapshot nem sempre mostra que um botão está desabilitado. Verifique o estado antes de planejar um clique.
-- **Mensagens dinâmicas:** textos de status mudam conforme a interação. Anote o texto de cada estado que o cenário usa.
-- **Contraprova:** quando a asserção verifica um estado (botão desabilitado, mensagem de vazio), confirme na tela que o estado oposto existe (o botão habilita, a mensagem muda). Assim a asserção prova algo e não passa por acaso.
+## O que a descoberta precisa separar
+
+- **Botão desabilitado:** o snapshot pode não mostrar. Confira o estado antes de planejar o clique.
+- **Mensagem:** anote o texto de cada estado que o cenário usa. Se o cenário não fixou o texto, o resumo marca "texto observado".
+- **Contraprova:** se a asserção verifica um estado (alerta visível, botão que não segue), confira na tela que esse estado é o que o cenário descreve, e não um elemento que estaria ali de qualquer forma.
