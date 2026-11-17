@@ -8,9 +8,33 @@ export interface Mission {
 }
 
 export interface Reservation {
+    id: string
+    userId: string | null
     missionId: string
+    reservationCode: string
+    contactEmail: string
+    totalPrice: string
+    status: string
+    createdAt: string
 }
 
 export interface Ticket {
+    id: string
+    reservationId: string
     missionId: string
+    seat: string
+    fullName: string
+    document: string
+}
+
+export interface LunarBase {
+    id: string
+    name: string
+    shortName: string
+    tagline: string
+    description: string
+    imageUrl: string
+    sortOrder: number
+    isActive: boolean
+    createdAt: string
 }
