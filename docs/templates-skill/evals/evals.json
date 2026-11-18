@@ -1,0 +1,24 @@
+{
+  "skill_name": "template-skill",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Exemplo de solicitação padrão do usuário solicitando a execução da tarefa principal da skill com requisitos básicos.",
+      "expected_output": "Execução correta seguindo as etapas, respeitando o molde e preenchendo todos os campos esperados sem inventar dados.",
+      "assertions": [
+        "Não inventa dados ausentes no prompt",
+        "Segue as convenções técnicas definidas em references",
+        "Entrega a resposta formatada no padrão do template de saída"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Solicitação ambígua ou incompleta que tenta forçar o agente a adivinhar uma regra de negócio não especificada.",
+      "expected_output": "O agente identifica a lacuna e registra como dúvida ou ponto a investigar, sem assumir comportamentos arbitrários.",
+      "assertions": [
+        "Identifica explicitamente a ambiguidade no pedido",
+        "Registra a dúvida para validação em vez de inventar uma resposta afirmativa"
+      ]
+    }
+  ]
+}
